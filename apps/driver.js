@@ -6,7 +6,7 @@ emitter.on('pickup', onPickup);
 
 function onPickup(order){
   setTimeout(() => {
-    console.log('the order from pickup');
+    console.log('Driver picked up order #');
     emitter.emit('in-transit', order);
   }, 1000);
 }
