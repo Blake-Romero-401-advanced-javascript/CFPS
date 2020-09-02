@@ -1,38 +1,58 @@
 'use strict';
 
-const Emitter = require('events');
+const eventEmitter = require('./lib/events');
+// const Emitter = require('events');
 
-const emitter = new Emitter();
+// const emitter = new Emitter();
 
-emitter.on('pickup', onPickup);
-emitter.on('in-transit', onInTransit);
-emitter.on('delivered', onDelivered);
+// EventEmitter.on('pickup', onPickup);
+// EventEmitter.on('in-transit', onInTransit);
+// EventEmitter.on('delivered', onDelivered);
+eventEmitter.on('pickup', eventHandler('pickup'));
+eventEmitter.on('in-transit', eventHandler('in-transit'));
+eventEmitter.on('delivered', eventHandler('delivered'));
+
+
 
 // Functions
-function onPickup(){
-  console.log('Ready for Pickup!');
+
+function eventHandler(eventName){
+
+  return payload => {
+
+    const time = new Date();
+    
+    console.log('EVENT', {event:eventName, time, payload});
+  }
 }
 
-function onInTransit(){
-  console.log('In-Transit to location.');
-}
+// function onPickup(payload){
+//   const time = new Date();
+//   console.log('EVENT', { event:'pickup', time, payload });
+// }
 
-function onDelivered(){
-  console.log('DELIVERED!!!');
-}
+// function onInTransit(payload){
+//   const time = new Date();
+//   console.log('EVENT', { event:'in-transit', time, payload });
+// }
+
+// function onDelivered(payload){
+//   const time = new Date();
+//   console.log('EVENT', { event:'delivered', time, payload });
+// }
 
 // Event 
 setTimeout(() => {
-  emitter.emit('pickup');
+  eventEmitter.emit('pickup', {foo:'bar'});
 
 }, 3 * 1000);
 
 setTimeout(() => {
-  emitter.emit('in-transit');
+  eventEmitter.emit('in-transit');
 
 }, 3 * 1000);
 
 setTimeout(() => {
-  emitter.emit('delivered');
+  eventEmitter.emit('delivered');
 
 }, 3 * 1000);
