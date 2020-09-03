@@ -1,15 +1,19 @@
 'use strict';
 //Declare a store name
 //new customer order every 5 seconds
-const net = require('net');
-const emitter = require('../lib/events');
+// const net = require('net');
+// const emitter = require('../lib/events');
+const io = require('socket.io-client');
+
+const socket = io.connect('http://localhost:3000');
+const vendorChannel = io.connect('http://localhost:3000/vendor');
 const faker = require('faker');
 require('dotenv').config();
 
-const client = new net.Socket();
-
-const host = process.env.HOST || 'localhost';
-const port = process.env.PORT || 3000;
+// const client = new net.Socket();
+vendorChannel.emit('join', '1-206-flowers');
+// const host = process.env.HOST || 'localhost';
+// const port = process.env.PORT || 3000;
 
 //StoreFront
 const store = process.env.StoreName;
@@ -24,18 +28,18 @@ const order ={
   address,
 }
 //Client
-client.connect(port, host, () => {
-  console.log('[?] successfully connected to', host, ':', port);
-});
+// client.connect(port, host, () => {
+//   console.log('[?] successfully connected to', host, ':', port);
+// });
 
 //Events
 setInterval(start, 5000);
 
 function start(){
-  emitter.emit('pickup', order);
+  socket.emit('pickup', order);
 }
 
-emitter.on('delivered', payload => onDelivered(payload));
+vendorChannel.on('delivered', payload => onDelivered(payload));
 
 function onDelivered(payload){
   console.log(`VENDOR: Thank you for delivering ${payload.orderId}`);
