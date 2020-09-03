@@ -1,45 +1,79 @@
 'use strict';
 
-const eventEmitter = require('./lib/events');
-// const Emitter = require('events');
 
-// const emitter = new Emitter();
+// const inquirer = require('inquirer');
+const io = require('socket.io')(process.env.PORT || 3000);
+// const slick = io.connect('http://localhost:3000/slick');
+io.on('connection', (socket) => {
+  const events = ['driver', 'vendor'];
 
-// EventEmitter.on('pickup', onPickup);
-// EventEmitter.on('in-transit', onInTransit);
-// EventEmitter.on('delivered', onDelivered);
-eventEmitter.on('pickup', eventHandler('pickup'));
-eventEmitter.on('in-transit', eventHandler('in-transit'));
-eventEmitter.on('delivered', eventHandler('delivered'));
+  for(let eventName of events){
+    registerEvent(socket, eventName);
+  }
+});
+
+const vendor = io.of('/vendor');
+
+
+// const eventEmitter = require('./lib/events');
+
+// eventEmitter.on('pickup', eventHandler('pickup'));
+// eventEmitter.on('in-transit', eventHandler('in-transit'));
+// eventEmitter.on('delivered', eventHandler('delivered'));
 
 
 
 // Functions
 
-function eventHandler(eventName){
-
-  return payload => {
-
-    const time = new Date();
-    
-    console.log('EVENT', {event:eventName, time, payload});
-  }
+function registerEvent(socket, eventName){
+  socket.on(eventName, (payload) => {
+    logIt(eventName, payload);
+    io.emit(eventName, payload);
+  });
 }
 
-// function onPickup(payload){
-//   const time = new Date();
-//   console.log('EVENT', { event:'pickup', time, payload });
+function logIt(eventName, payload){
+  console.log(eventName, payload.review);
+}
+
+// Namespaces
+
+
+vendor.on('connection', (socket) => {
+  console.log('VENDOR CHANNEL', socket.id);
+
+  socket.on('join', (payload) => {
+    vendor.emit('joined', payload);
+  });
+});
+//////////////////
+// const driver = io.of('/driver');
+// driver.on('connection', (socket) => {
+//   console.log('DRIVER CHANNEL', socket.id);
+
+//   socket.on('join', room => {
+//     console.log('joined', room);
+//     socket.join(room);
+//   });
+//////////////////
+  // socket.on('accident', (payload) => {
+  //   driver.to('paramedic').emit('accident', payload);
+  // });
+});
+
+
+
+
+// function eventHandler(eventName){
+
+//   return payload => {
+
+//     const time = new Date();
+    
+//     console.log('EVENT', {event:eventName, time, payload});
+//   }
 // }
 
-// function onInTransit(payload){
-//   const time = new Date();
-//   console.log('EVENT', { event:'in-transit', time, payload });
-// }
-
-// function onDelivered(payload){
-//   const time = new Date();
-//   console.log('EVENT', { event:'delivered', time, payload });
-// }
 
 // Event 
 setTimeout(() => {
